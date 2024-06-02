@@ -50,7 +50,7 @@ public class SecurityConfig {
   /**
    * Cors配置优化
    **/
-  @Bean
+//  @Bean
   CorsConfigurationSource corsConfigurationSource() {
     org.springframework.web.cors.CorsConfiguration configuration = new CorsConfiguration();
     configuration.setAllowedOrigins(singletonList("*"));
@@ -76,8 +76,9 @@ public class SecurityConfig {
   AuthenticationManager authenticationManager(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
     return authentication -> {
       String username = authentication.getPrincipal() + "";
+      String password = authentication.getCredentials() + "";
       UserDetails user = userDetailsService.loadUserByUsername(username);
-      if (!passwordEncoder.matches(username, user.getPassword())) {
+      if (!passwordEncoder.matches(password, user.getPassword())) {
         throw new BadCredentialsException("Bad credentials");
       }
 
