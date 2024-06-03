@@ -6,6 +6,7 @@ import com.niuma.remembereverything.repository.UserRepository;
 import com.niuma.remembereverything.web.ReturnCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,7 +31,7 @@ public class AuthenticationController {
       var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, data.getPassword()));
       return "signed";
     } catch (AuthenticationException e) {
-      throw new BusinessException(ReturnCode.RC_900);
+      throw new BadCredentialsException("Invalid username or password");
     }
   }
 

@@ -4,6 +4,7 @@ import static java.util.Collections.singletonList;
 
 import com.niuma.remembereverything.repository.UserRepository;
 import java.util.Arrays;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,7 +31,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
+
+  private final AuthenticationEntryPoint authenticationEntryPoint;
 
   @Bean
   SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -44,6 +49,7 @@ public class SecurityConfig {
             .anyRequest().authenticated()
         )
         .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin)) // for h2-console
+        .exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint))
         .build();
   }
 

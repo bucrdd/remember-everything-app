@@ -3,7 +3,9 @@ package com.niuma.remembereverything.web;
 public enum ReturnCode {
 
   RC_0("0", "success")
-  , RC_900("900", "internal server error")
+  , RC_UNAUTHORIZED("4010", "Unauthorized")
+  , RC_BAD_CREDENTIALS("4011", "Unauthorized")
+  , RC_SYSTEM_ERROR("9999", "Internal server error")
   ;
 
   private final String code;
