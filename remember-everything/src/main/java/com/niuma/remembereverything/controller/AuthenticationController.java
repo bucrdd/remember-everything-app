@@ -1,14 +1,17 @@
 package com.niuma.remembereverything.controller;
 
 
-import com.niuma.remembereverything.exception.BusinessException;
+import com.niuma.remembereverything.entity.User;
 import com.niuma.remembereverything.repository.UserRepository;
-import com.niuma.remembereverything.web.ReturnCode;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.session.SessionRegistry;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +26,8 @@ public class AuthenticationController {
 
   private final UserRepository userRepository;
 
+  private final SessionRegistry sessionRegistry;
+
   @PostMapping("/signin")
   public String signIn(@RequestBody AuthenticationRequest data) {
     try {
@@ -33,6 +38,12 @@ public class AuthenticationController {
     } catch (AuthenticationException e) {
       throw new BadCredentialsException("Invalid username or password");
     }
+  }
+
+  @GetMapping("/management/users")
+  public List<User> users() {
+    sessionRegistry.getAllPrincipals();
+    return Collections.EMPTY_LIST;
   }
 
 }

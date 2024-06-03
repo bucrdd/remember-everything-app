@@ -1,6 +1,6 @@
 package com.niuma.remembereverything.web;
 
-import static com.niuma.remembereverything.web.ReturnCode.RC_0;
+import static com.niuma.remembereverything.web.ReturnCode.RC_SUCCESS;
 import static com.niuma.remembereverything.web.ReturnCode.RC_SYSTEM_ERROR;
 
 import lombok.AccessLevel;
@@ -30,8 +30,8 @@ public class ResponseData<T> {
   public static <T> ResponseData<T> success(T data) {
     ResponseData<T> result = new ResponseData<>();
     result.setData(data);
-    result.setCode(RC_0.getCode());
-    result.setMessage(RC_0.getMessage());
+    result.setCode(RC_SUCCESS.getCode());
+    result.setMessage(RC_SUCCESS.getMessage());
     return result;
   }
 
