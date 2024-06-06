@@ -18,6 +18,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer.FrameOptionsConfig;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,8 +30,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -43,27 +45,29 @@ public class SecurityConfig {
 
   private final AccessDeniedHandler accessDeniedHandler;
 
-  private final SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
-
   @Bean
   SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
-    return http.httpBasic(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable)
+    return http.httpBasic(AbstractHttpConfigurer::disable).csrf(AbstractHttpConfigurer::disable)
         .cors(Customizer.withDefaults())
-        .sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
-        .securityContext(context -> context.securityContextRepository(securityContextRepository))
-        .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+        .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin)) // for h2-console
         .authorizeHttpRequests(authorize -> authorize
-            .requestMatchers("/auth/signin", "/auth/signup").permitAll()
+            .requestMatchers("/auth/login", "/auth/signup").permitAll()
             .requestMatchers("/h2-console/**").permitAll()
             .requestMatchers("/management/**").hasRole("MANAGER")
             .anyRequest().authenticated()
         )
-        .headers(headers -> headers.frameOptions(FrameOptionsConfig::sameOrigin)) // for h2-console
+        .logout(logout -> logout
+            .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+        )
+        .sessionManagement(session -> session
+            .maximumSessions(1)
+            .sessionRegistry(sessionRegistry())
+        )
+        .securityContext(context -> context.requireExplicitSave(true))
+        .exceptionHandling(c -> c.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
         .exceptionHandling(handling -> handling
             .authenticationEntryPoint(authenticationEntryPoint)
-            .accessDeniedHandler(accessDeniedHandler)
-        )
+            .accessDeniedHandler(accessDeniedHandler))
         .build();
   }
 
@@ -83,7 +87,6 @@ public class SecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
     return source;
   }
-
 
 
   @Bean
@@ -106,13 +109,18 @@ public class SecurityConfig {
         throw new DisabledException("Disabled");
       }
 
-      return new UsernamePasswordAuthenticationToken(username, user.getPassword(), user.getAuthorities());
+      return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
     };
   }
 
   @Bean
   SessionRegistry sessionRegistry() {
     return new SessionRegistryImpl();
+  }
+
+  @Bean
+  public HttpSessionEventPublisher httpSessionEventPublisher() {
+    return new HttpSessionEventPublisher();
   }
 
 }
