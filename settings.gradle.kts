@@ -1,11 +1,10 @@
-rootProject.name = "niuma"
-
-include("niuma-base")
-include("remember-everything")
+rootProject.name = "remember-everything-app"
 
 pluginManagement {
   repositories {
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
+    maven("https://maven.aliyun.com/repository/public")
   }
 }

@@ -1,12 +1,11 @@
 HELP.md
 .gradle
+logs/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-
-logs/
-**/*local.*
+**/*-local.*
 
 ### STS ###
 .apt_generated
@@ -38,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Kotlin ###
+.kotlin
