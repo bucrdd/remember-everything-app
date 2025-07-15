@@ -19,6 +19,7 @@ class SessionConfig {
   fun sessionRepository(): SessionRepository<*> {
     return MapSessionRepository(ConcurrentHashMap())
   }
+
   @Bean
   fun sessionRegistry(): SessionRegistry {
     return SessionRegistryImpl()

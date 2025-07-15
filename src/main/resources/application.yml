@@ -1,3 +1,11 @@
 spring:
   application:
     name: remember-everything-app
+  messages:
+    fallback-to-system-locale: off
+    encoding: UTF-8
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true

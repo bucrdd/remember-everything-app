@@ -1,44 +1,45 @@
 package com.niuma.remembereverythingapp.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.niuma.remembereverythingapp.entity.User
+import com.niuma.remembereverythingapp.base.response.Result
+import com.niuma.remembereverythingapp.base.response.ResultCode
 import com.niuma.remembereverythingapp.filter.JsonUsernamePasswordAuthenticationFilter
+import com.niuma.remembereverythingapp.util.JsonUtils
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.crypto.password.PasswordEncoder
-import org.springframework.security.provisioning.InMemoryUserDetailsManager
+import org.springframework.security.core.session.SessionRegistry
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.context.DelegatingSecurityContextRepository
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository
 
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-  private val passwordEncoder: PasswordEncoder
+
 ) {
 
-  private val objectMapper: ObjectMapper = ObjectMapper()
+  private val log = LoggerFactory.getLogger(SecurityConfig::class.java)
 
   @Bean
   fun securityFilterChain(
     http: HttpSecurity,
-    authenticationManager: ObjectProvider<AuthenticationManager>
+    authenticationManager: ObjectProvider<AuthenticationManager>,
+    sessionRegistry: SessionRegistry,
   ): SecurityFilterChain {
     http {
       addFilterAt<UsernamePasswordAuthenticationFilter>(
-        jsonUsernamePasswordAuthenticationFilter(
-          authenticationManager = authenticationManager.getObject())
+        jsonUsernamePasswordAuthenticationFilter(authenticationManager = authenticationManager.getObject())
       )
       authorizeHttpRequests {
         authorize("/**", permitAll)
@@ -47,15 +48,20 @@ class SecurityConfig(
       formLogin { disable() }
       httpBasic { disable() }
       csrf { disable() }
+      securityContext {
+        securityContextRepository = DelegatingSecurityContextRepository(
+          RequestAttributeSecurityContextRepository(),
+          HttpSessionSecurityContextRepository()
+        )
+      }
       sessionManagement {
-        sessionCreationPolicy = SessionCreationPolicy.IF_REQUIRED // 或 ALWAYS
+        sessionCreationPolicy = SessionCreationPolicy.IF_REQUIRED
         sessionFixation { changeSessionId() }
         sessionConcurrency {
           maximumSessions = 1
           maxSessionsPreventsLogin = true
         }
       }
-
     }
     return http.build()
   }
@@ -72,17 +78,25 @@ class SecurityConfig(
 
   fun authenticationSuccessHandler(): AuthenticationSuccessHandler {
     return AuthenticationSuccessHandler { request, response, authentication ->
+      request.session.setAttribute("username", authentication.name)
       response.contentType = MediaType.APPLICATION_JSON_VALUE
-      response.writer.write(objectMapper.writeValueAsString(
-        mapOf("username" to authentication.name, "authorities" to authentication.authorities.map { it.authority })))
+      response.writer.write(
+        JsonUtils.toJson(Result.ok(
+          mapOf("username" to authentication.name, "roles" to authentication.authorities.map { it.authority })
+        ))
+      )
     }
   }
 
   fun authenticationFailureHandler(): AuthenticationFailureHandler {
     return AuthenticationFailureHandler { _, response, exception ->
-      response.status = HttpStatus.UNAUTHORIZED.value()
+      log.error("Authentication Failed: {}", exception.message)
+//      response.status = HttpStatus.UNAUTHORIZED.value()
       response.contentType = MediaType.APPLICATION_JSON_VALUE
-      response.writer.write("""{"error": "Authentication failed", "message": "${exception.message}"}""")
+      response.writer.write(JsonUtils.toJson(Result.error(
+        ResultCode.BAD_REQUEST.code,
+        exception.message ?: ResultCode.BAD_REQUEST.message,
+      )))
     }
   }
 }

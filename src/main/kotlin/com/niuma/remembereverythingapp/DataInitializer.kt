@@ -2,6 +2,7 @@ package com.niuma.remembereverythingapp
 
 import com.niuma.remembereverythingapp.entity.User
 import com.niuma.remembereverythingapp.repository.UserRepository
+import org.slf4j.LoggerFactory
 import org.springframework.boot.CommandLineRunner
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
@@ -12,7 +13,7 @@ class DataInitializer(
   private val passwordEncoder: PasswordEncoder
 ) : CommandLineRunner {
 
-  private val log = logger()
+  private val log = LoggerFactory.getLogger(DataInitializer::class.java)
 
   override fun run(vararg args: String?) {
     log.debug("Data initialization")
