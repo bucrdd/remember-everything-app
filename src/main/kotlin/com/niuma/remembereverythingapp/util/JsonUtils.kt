@@ -12,7 +12,7 @@ import java.io.InputStream
 
 object JsonUtils {
 
-  private val logger = LoggerFactory.getLogger(JsonUtils::class.java)
+  private val log = LoggerFactory.getLogger(JsonUtils::class.java)
 
   private const val DEFAULT_STR_OF_NULL: String = "null"
 
@@ -31,7 +31,7 @@ object JsonUtils {
       try {
         mapper.writeValueAsString(obj)
       } catch (e: JsonProcessingException) {
-        logger.error("Failed to serialize $obj, ${e.message}", e)
+        log.error("Failed to serialize $obj, ${e.message}", e)
         throw RuntimeException("Failed to serialize $obj", e)
       }
     }
@@ -44,7 +44,7 @@ object JsonUtils {
       try {
         mapper.writerWithDefaultPrettyPrinter().writeValueAsString(obj)
       } catch (e: JsonProcessingException) {
-        logger.error("Failed to serialize $obj, ${e.message}", e)
+        log.error("Failed to serialize $obj, ${e.message}", e)
         throw RuntimeException("Failed to serialize $obj", e)
       }
     }
@@ -57,7 +57,7 @@ object JsonUtils {
     return try {
       mapper.readValue(json, clazz)
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $json as ${clazz.typeName}: ${e.message}", e)
+      log.error("Failed to deserialize $json as ${clazz.typeName}: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
     }
   }
@@ -69,7 +69,7 @@ object JsonUtils {
     return try {
       mapper.readValue(json, typeReference)
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $json as ${typeReference.type}: ${e.message}", e)
+      log.error("Failed to deserialize $json as ${typeReference.type}: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json as", e)
     }
   }
@@ -78,7 +78,7 @@ object JsonUtils {
     return try {
       mapper.readValue(inputStream, clazz)
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $inputStream as ${clazz.typeName}: ${e.message}", e)
+      log.error("Failed to deserialize $inputStream as ${clazz.typeName}: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $inputStream", e)
     }
   }
@@ -90,7 +90,7 @@ object JsonUtils {
     return try {
       mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $json as Map<String, Any>: ${e.message}", e)
+      log.error("Failed to deserialize $json as Map<String, Any>: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
     }
   }
@@ -102,7 +102,7 @@ object JsonUtils {
     return try {
       mapper.readValue(json, object : TypeReference<Map<K, Any>>() {})
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $json as Map<${keyClazz.typeName}, Any>: ${e.message}", e)
+      log.error("Failed to deserialize $json as Map<${keyClazz.typeName}, Any>: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
     }
   }
@@ -114,7 +114,7 @@ object JsonUtils {
     return try {
       mapper.readValue(json, object : TypeReference<List<T>>() {})
     } catch (e: Exception) {
-      logger.error("Failed to deserialize $json as List<${clazz.typeName}>: ${e.message}", e)
+      log.error("Failed to deserialize $json as List<${clazz.typeName}>: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
     }
   }
@@ -127,7 +127,7 @@ object JsonUtils {
     return try {
       mapper.writeValueAsBytes(obj)
     } catch (e: JsonProcessingException) {
-      logger.error("Failed to serialize $obj to byte[]: ${e.message}", e)
+      log.error("Failed to serialize $obj to byte[]: ${e.message}", e)
       throw RuntimeException("Failed to serialize $obj", e)
     }
   }

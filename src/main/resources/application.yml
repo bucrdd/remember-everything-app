@@ -9,3 +9,7 @@ server:
     encoding:
       charset: UTF-8
       force: true
+
+jwt:
+  secret: some-secret
+  expiration: 86400

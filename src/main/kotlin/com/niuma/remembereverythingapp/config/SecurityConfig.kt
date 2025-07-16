@@ -3,7 +3,9 @@ package com.niuma.remembereverythingapp.config
 import com.niuma.remembereverythingapp.base.response.Result
 import com.niuma.remembereverythingapp.base.response.ResultCode
 import com.niuma.remembereverythingapp.filter.JsonUsernamePasswordAuthenticationFilter
+import com.niuma.remembereverythingapp.filter.JwtTokenRequestFilter
 import com.niuma.remembereverythingapp.util.JsonUtils
+import com.niuma.remembereverythingapp.util.JwtTokenUtil
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.ObjectProvider
 import org.springframework.context.annotation.Bean
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.core.session.SessionRegistry
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
@@ -34,15 +37,16 @@ class SecurityConfig(
   @Bean
   fun securityFilterChain(
     http: HttpSecurity,
-    authenticationManager: ObjectProvider<AuthenticationManager>,
-    sessionRegistry: SessionRegistry,
+    jwtTokenUtil: JwtTokenUtil,
+    userDetailsService: UserDetailsService
   ): SecurityFilterChain {
     http {
       addFilterAt<UsernamePasswordAuthenticationFilter>(
-        jsonUsernamePasswordAuthenticationFilter(authenticationManager = authenticationManager.getObject())
+        JwtTokenRequestFilter(jwtTokenUtil = jwtTokenUtil, userDetailsService = userDetailsService)
       )
       authorizeHttpRequests {
-        authorize("/**", permitAll)
+        authorize("/api/auth/login", permitAll)
+        authorize("/**", authenticated)
       }
       cors { }
       formLogin { disable() }
@@ -66,7 +70,7 @@ class SecurityConfig(
     return http.build()
   }
 
-  @Bean
+  //  @Bean
   fun jsonUsernamePasswordAuthenticationFilter(
     authenticationManager: AuthenticationManager,
   ): JsonUsernamePasswordAuthenticationFilter {

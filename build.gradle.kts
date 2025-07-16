@@ -1,6 +1,7 @@
 plugins {
   kotlin("jvm") version "1.9.25"
   kotlin("plugin.spring") version "1.9.25"
+  kotlin("plugin.jpa") version "1.6.21"
   id("java")
   id("org.springframework.boot") version "3.5.3"
   id("io.spring.dependency-management") version "1.1.7"
@@ -32,9 +33,14 @@ dependencies {
   implementation("org.springframework.session:spring-session-core")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
+  implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
   runtimeOnly("com.h2database:h2")
+
+  implementation("io.jsonwebtoken:jjwt-api:0.11.5")
+  runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
+  runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
 
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok")

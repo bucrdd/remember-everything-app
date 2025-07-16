@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 
 @Configuration
-@EnableSpringHttpSession
+//@EnableSpringHttpSession
 class SessionConfig {
 
   @Bean
