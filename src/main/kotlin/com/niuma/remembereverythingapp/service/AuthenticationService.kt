@@ -1,12 +1,12 @@
 package com.niuma.remembereverythingapp.service
 
 import com.niuma.remembereverythingapp.base.response.ResultCode
-import com.niuma.remembereverythingapp.repository.UserRepository
 import com.niuma.remembereverythingapp.dto.LoginRequest
 import com.niuma.remembereverythingapp.entity.User
-import jakarta.servlet.http.HttpServletRequest
+import com.niuma.remembereverythingapp.repository.UserRepository
 import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -22,7 +22,7 @@ class AuthenticationService(
     val user = userRepository.findByUsername(loginRequest.username)
     if (user == null) {
       log.warn("User ${loginRequest.username} not found")
-      throw BadCredentialsException(ResultCode.BAD_CREDENTIALS.message)
+      throw UsernameNotFoundException(ResultCode.BAD_CREDENTIALS.message)
     }
     if (!passwordEncoder.matches(loginRequest.password, user.password)) {
       log.warn("User ${loginRequest.username} does not match password")

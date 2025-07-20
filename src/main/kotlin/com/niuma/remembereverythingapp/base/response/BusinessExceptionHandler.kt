@@ -1,6 +1,12 @@
 package com.niuma.remembereverythingapp.base.response
 
 import com.niuma.remembereverythingapp.base.exception.BusinessException
+import org.springframework.security.authentication.AccountExpiredException
+import org.springframework.security.authentication.BadCredentialsException
+import org.springframework.security.authentication.DisabledException
+import org.springframework.security.authentication.LockedException
+import org.springframework.security.core.AuthenticationException
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -8,7 +14,7 @@ import java.util.stream.Collectors
 
 
 @RestControllerAdvice
-class CustomExceptionHandler {
+class BusinessExceptionHandler {
 
   @ExceptionHandler(BusinessException::class)
   fun handleBusinessException(e: BusinessException): Result<Nothing> {
@@ -22,6 +28,18 @@ class CustomExceptionHandler {
       .map { it.defaultMessage }
       .collect(Collectors.joining(", "))
     return Result.error(ResultCode.BAD_REQUEST.code, message)
+  }
+
+  @ExceptionHandler(AuthenticationException::class)
+  fun handleAuthenticationException(e: AuthenticationException): Result<Nothing> {
+    return when(e) {
+      is UsernameNotFoundException, is BadCredentialsException
+         -> Result.error(ResultCode.BAD_CREDENTIALS.code, e.message ?: ResultCode.BAD_CREDENTIALS.message)
+      is AccountExpiredException -> Result.error(ResultCode.ACCOUNT_EXPIRED.code, e.message ?: ResultCode.ACCOUNT_EXPIRED.message)
+      is LockedException -> Result.error(ResultCode.ACCOUNT_LOCKED.code, e.message ?: ResultCode.ACCOUNT_LOCKED.message)
+      is DisabledException -> Result.error(ResultCode.ACCOUNT_DISABLED.code, e.message ?: ResultCode.ACCOUNT_DISABLED.message)
+      else -> Result.error(ResultCode.BAD_AUTHENTICATION.code, e.message ?: ResultCode.BAD_AUTHENTICATION.message)
+    }
   }
 
   @ExceptionHandler(Exception::class)
