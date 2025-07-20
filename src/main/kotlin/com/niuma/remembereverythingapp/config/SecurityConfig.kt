@@ -85,7 +85,7 @@ class SecurityConfig(
       request.session.setAttribute("username", authentication.name)
       response.contentType = MediaType.APPLICATION_JSON_VALUE
       response.writer.write(
-        JsonUtils.toJson(Result.ok(
+        JsonUtils.DEFAULT.toJson(Result.ok(
           mapOf("username" to authentication.name, "roles" to authentication.authorities.map { it.authority })
         ))
       )
@@ -97,7 +97,7 @@ class SecurityConfig(
       log.error("Authentication Failed: {}", exception.message)
 //      response.status = HttpStatus.UNAUTHORIZED.value()
       response.contentType = MediaType.APPLICATION_JSON_VALUE
-      response.writer.write(JsonUtils.toJson(Result.error(
+      response.writer.write(JsonUtils.DEFAULT.toJson(Result.error(
         ResultCode.BAD_REQUEST.code,
         exception.message ?: ResultCode.BAD_REQUEST.message,
       )))

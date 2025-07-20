@@ -10,18 +10,21 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.slf4j.LoggerFactory
 import java.io.InputStream
 
-object JsonUtils {
+class JsonUtils (private val mapper: ObjectMapper) {
 
   private val log = LoggerFactory.getLogger(JsonUtils::class.java)
 
-  private const val DEFAULT_STR_OF_NULL: String = "null"
-
-  private val mapper: ObjectMapper = ObjectMapper().apply {
-    registerModule(KotlinModule.Builder().build())
-    registerModule(JavaTimeModule())
-    configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
-//    configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+  companion object {
+    private const val DEFAULT_STR_OF_NULL: String = "null"
+    private fun createDefaultMapper(): ObjectMapper {
+      return ObjectMapper().apply {
+        registerModule(KotlinModule.Builder().build())
+        registerModule(JavaTimeModule())
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false)
+      }
+    }
+    val DEFAULT = JsonUtils(createDefaultMapper())
   }
 
   fun toJson(obj: Any?): String {
@@ -112,7 +115,8 @@ object JsonUtils {
       return null
     }
     return try {
-      mapper.readValue(json, object : TypeReference<List<T>>() {})
+      val javaType = mapper.typeFactory.constructCollectionType(List::class.java, clazz)
+      mapper.readValue<List<T>>(json, javaType)
     } catch (e: Exception) {
       log.error("Failed to deserialize $json as List<${clazz.typeName}>: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
@@ -133,3 +137,23 @@ object JsonUtils {
   }
 
 }
+//
+//class CustomSpacePrettyPrinter : DefaultPrettyPrinter() {
+//
+//  init {
+//    _objectIndenter = DefaultIndenter("  ", "\n")
+//    _arrayIndenter = DefaultIndenter("  ", "\n")
+//  }
+//
+//  override fun createInstance(): DefaultPrettyPrinter {
+//    return CustomSpacePrettyPrinter()
+//  }
+//
+//  override fun writeObjectFieldValueSeparator(gen: JsonGenerator) {
+//    gen.writeRaw(":")
+//  }
+//
+//  override fun beforeObjectEntries(gen: JsonGenerator) {
+//    gen.writeRaw(" ")
+//  }
+//}

@@ -26,7 +26,7 @@ class ResponseHandler : ResponseBodyAdvice<Any> {
     request: ServerHttpRequest,
     response: ServerHttpResponse): Any? {
     if (body is String) {
-      return JsonUtils.toJson(Result.ok(body))
+      return JsonUtils.DEFAULT.toJson(Result.ok(body))
     }
 
     if (body is Result<*>) {

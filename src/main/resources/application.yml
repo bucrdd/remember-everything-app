@@ -12,4 +12,5 @@ server:
 
 jwt:
   secret: some-secret
-  expiration: 86400
+  expiration: 86400 # milliseconds
+  clock-skew: 30 # secondes
