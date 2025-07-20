@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: remember-everything-app-test
+  messages:
+    fallback-to-system-locale: off
+    encoding: UTF-8
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:remember-every-thing;DB_CLOSE_DELAY=-1
+    username: sa
+    password: 123456
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        trace: true
+        web-allow-others: true
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      force: true
+
+jwt:
+  secret: some-secret
+  expiration: 86400
+  clock-skew: 30 # secondes
