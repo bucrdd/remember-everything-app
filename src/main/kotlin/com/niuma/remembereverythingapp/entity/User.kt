@@ -11,21 +11,22 @@ import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = "`user`")
-data class User(
+class User(
   @Column(name = "username", nullable = false)
-  private val username: String,
+  private var username: String,
   @Column(name = "password", nullable = false)
-  private val password: String,
-  private val roles: Set<String> = setOf(),
+  private var password: String,
+  private var roles: Set<String> = setOf(),
 ) : BaseEntity<Long>(), UserDetails {
 
-
   override fun getUsername(): String = username
+
   @JsonIgnore
   override fun getPassword(): String = password
 
-//  @JsonIgnore
-  override fun getAuthorities(): Collection<GrantedAuthority> = roles.map { SimpleGrantedAuthority(it) }
+  //  @JsonIgnore
+  override fun getAuthorities(): Collection<GrantedAuthority> =
+    roles.map { SimpleGrantedAuthority(it) }
 
   @JsonIgnore
   override fun isAccountNonExpired(): Boolean = true

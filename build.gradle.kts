@@ -3,8 +3,10 @@ plugins {
   kotlin("plugin.spring") version "1.9.25"
   kotlin("plugin.jpa") version "1.6.21"
   id("java")
-  id("org.springframework.boot") version "3.5.3"
-  id("io.spring.dependency-management") version "1.1.7"
+  alias(libs.plugins.spring.boot.framework)
+  alias(libs.plugins.spring.dependency.management)
+  id("org.jetbrains.kotlin.plugin.lombok") version "2.1.20"
+  id("io.freefair.lombok") version "8.6"
 }
 
 group = "com.niuma"
@@ -36,11 +38,13 @@ dependencies {
   implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+  implementation("com.mysql:mysql-connector-j:9.7.0")
+
   runtimeOnly("com.h2database:h2")
 
-  implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-  runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-  runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  implementation(libs.jjwt.api)
+  runtimeOnly(libs.jjwt.impl)
+  runtimeOnly(libs.jjwt.jackson)
 
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok")
@@ -63,4 +67,10 @@ kotlin {
 
 tasks.withType<Test> {
   useJUnitPlatform()
+}
+
+dependencyManagement {
+  imports {
+    mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.3")
+  }
 }

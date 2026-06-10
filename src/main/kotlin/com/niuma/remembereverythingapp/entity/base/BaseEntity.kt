@@ -11,6 +11,6 @@ import java.io.Serializable
 abstract class BaseEntity<ID : Serializable> : Serializable {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   open var id: ID? = null
 }

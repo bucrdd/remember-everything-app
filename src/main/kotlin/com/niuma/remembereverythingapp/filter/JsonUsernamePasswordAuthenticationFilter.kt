@@ -54,6 +54,6 @@ class JsonUsernamePasswordAuthenticationFilter(
 }
 
 data class LoginRequest(
-  @JsonProperty("username") val username: String,
-  @JsonProperty("password") val password: String
+    @field:JsonProperty("username") val username: String,
+    @field:JsonProperty("password") val password: String
 )

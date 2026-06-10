@@ -3,7 +3,6 @@ package com.niuma.remembereverythingapp.util
 import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.security.Keys
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
@@ -14,9 +13,9 @@ import javax.crypto.SecretKey
 
 @Component
 class JwtTokenUtil(
-  @Value("\${jwt.secret}") private val secret: String,
-  @Value("\${jwt.expiration}") private val expiration: Long,
-  @Value("\${jwt.clock-skew}") private val clockSkew: Long,
+  @param:Value("\${jwt.secret}") private val secret: String,
+  @param:Value("\${jwt.expiration}") private val expiration: Long,
+  @param:Value("\${jwt.clock-skew}") private val clockSkew: Long,
 ) {
 
   private val log = LoggerFactory.getLogger(JwtTokenUtil::class.java)
@@ -25,19 +24,20 @@ class JwtTokenUtil(
 
   fun generateToken(userDetails: UserDetails): String {
     val claims = HashMap<String, Any>()
-    claims.put("roles", userDetails.authorities.map { it.authority })
+    claims["roles"] = userDetails.authorities.map { it.authority }
     return Jwts.builder()
-      .setClaims(claims)
-      .setSubject(userDetails.username)
-      .setIssuedAt(Date())
-      .setExpiration(Date(System.currentTimeMillis() + expiration * 1000))
-      .signWith(key, SignatureAlgorithm.HS512)
+      .claims().empty().add(claims)
+      .and()
+      .subject(userDetails.username)
+      .issuedAt(Date())
+      .expiration(Date(System.currentTimeMillis() + expiration * 1000))
+      .signWith(key)
       .compact()
   }
 
   fun getUsernameFromToken(token: String): String? {
     return try {
-      getParser().parseClaimsJws(token).body.subject
+      getParser().parseSignedClaims(token).payload.subject
     } catch (e: ExpiredJwtException) {
       log.warn("Expired JWT for user ${e.claims.subject}", e)
       null
@@ -58,13 +58,13 @@ class JwtTokenUtil(
   }
 
   private fun getExpirationFromToken(token: String): Date {
-    return getParser().parseClaimsJws(token).body.expiration
+    return getParser().parseSignedClaims(token).payload.expiration
   }
 
   private fun getParser(): JwtParser {
-    return Jwts.parserBuilder()
-      .setSigningKey(key)
-      .setAllowedClockSkewSeconds(clockSkew)
+    return Jwts.parser()
+      .verifyWith(key)
+      .clockSkewSeconds(clockSkew)
       .build()
   }
 }
