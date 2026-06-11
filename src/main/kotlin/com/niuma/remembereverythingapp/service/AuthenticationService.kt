@@ -1,7 +1,6 @@
 package com.niuma.remembereverythingapp.service
 
 import com.niuma.remembereverythingapp.base.response.ResultCode
-import com.niuma.remembereverythingapp.dto.LoginRequest
 import com.niuma.remembereverythingapp.entity.User
 import com.niuma.remembereverythingapp.repository.UserRepository
 import org.slf4j.LoggerFactory
@@ -18,14 +17,14 @@ class AuthenticationService(
 
   private val log = LoggerFactory.getLogger(AuthenticationService::class.java)
 
-  fun authenticate(loginRequest: LoginRequest): User {
-    val user = userRepository.findByUsername(loginRequest.username)
+  fun authenticate(username: String, password: String): User {
+    val user = userRepository.findByUsername(username)
     if (user == null) {
-      log.warn("User ${loginRequest.username} not found")
+      log.warn("User $username not found")
       throw UsernameNotFoundException(ResultCode.BAD_CREDENTIALS.message)
     }
-    if (!passwordEncoder.matches(loginRequest.password, user.password)) {
-      log.warn("User ${loginRequest.username} does not match password")
+    if (!passwordEncoder.matches(password, user.password)) {
+      log.warn("User $username does not match password")
       throw BadCredentialsException(ResultCode.BAD_CREDENTIALS.message)
     }
     return user

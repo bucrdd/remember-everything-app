@@ -33,12 +33,14 @@ class JwtTokenRequestFilter(
           SecurityContextHolder.getContext().authentication = authentication
         } else {
           logger.info("Token invalid or expired for username[$username]")
+          return
         }
       } else {
         logger.info("Username from token is valid or request already authenticated")
       }
     } else {
       logger.info("""Not found "Authorization" from Header or Authorization no starting with "Bearer".""")
+      return
     }
     filterChain.doFilter(request, response)
   }

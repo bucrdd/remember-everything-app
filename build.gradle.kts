@@ -40,8 +40,6 @@ dependencies {
 
   implementation("com.mysql:mysql-connector-j:9.7.0")
 
-  runtimeOnly("com.h2database:h2")
-
   implementation(libs.jjwt.api)
   runtimeOnly(libs.jjwt.impl)
   runtimeOnly(libs.jjwt.jackson)

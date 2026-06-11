@@ -40,7 +40,7 @@ class JsonUtilsTest {
 
     @Test
     fun `should return null string when object is null`() {
-      assertThat(JsonUtils.DEFAULT.toJson(null)).isEqualTo("null")
+      assertThat(JsonUtils.DEFAULT.toJson(null)).isEqualTo("")
     }
 
     @Test
@@ -65,6 +65,11 @@ class JsonUtilsTest {
 
   @Nested
   inner class ToPrettyJsonTests {
+
+    @Test
+    fun `should return null string when object is null`() {
+      assertThat(JsonUtils.DEFAULT.toPrettyJson(null)).isEqualTo("")
+    }
 
     @Test
     fun `should return formatted json string`() {

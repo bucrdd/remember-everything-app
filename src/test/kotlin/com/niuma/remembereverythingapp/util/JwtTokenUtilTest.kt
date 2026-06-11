@@ -95,7 +95,7 @@ class JwtTokenUtilTest {
     val authorities = setOf("ROLE_USER", "ROLE_ADMIN")
     val userDetails = User("testUser", "password", authorities)
     val token = jwtTokenUtil.generateToken(userDetails)
-    val claims = Jwts.parserBuilder()
+    val claims = Jwts.parser()
       .setSigningKey(jwtTokenUtil.getKeyForTesting())
       .build()
       .parseClaimsJws(token)

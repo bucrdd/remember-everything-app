@@ -20,7 +20,7 @@ class JwtTokenUtil(
 
   private val log = LoggerFactory.getLogger(JwtTokenUtil::class.java)
 
-  private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
+  private val key: SecretKey = Jwts.SIG.HS512.key().build()
 
   fun generateToken(userDetails: UserDetails): String {
     val claims = HashMap<String, Any>()

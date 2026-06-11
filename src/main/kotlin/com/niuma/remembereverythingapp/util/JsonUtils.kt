@@ -15,7 +15,7 @@ class JsonUtils (private val mapper: ObjectMapper) {
   private val log = LoggerFactory.getLogger(JsonUtils::class.java)
 
   companion object {
-    private const val DEFAULT_STR_OF_NULL: String = "null"
+    private const val DEFAULT_STR_OF_NULL: String = ""
     private fun createDefaultMapper(): ObjectMapper {
       return ObjectMapper().apply {
         registerModule(KotlinModule.Builder().build())
@@ -94,18 +94,6 @@ class JsonUtils (private val mapper: ObjectMapper) {
       mapper.readValue(json, object : TypeReference<Map<String, Any>>() {})
     } catch (e: Exception) {
       log.error("Failed to deserialize $json as Map<String, Any>: ${e.message}", e)
-      throw RuntimeException("Failed to deserialize $json", e)
-    }
-  }
-
-  fun <K, Any> toMap(json: String?, keyClazz: Class<K>): Map<K, Any>? {
-    if (json.isNullOrBlank()) {
-      return null
-    }
-    return try {
-      mapper.readValue(json, object : TypeReference<Map<K, Any>>() {})
-    } catch (e: Exception) {
-      log.error("Failed to deserialize $json as Map<${keyClazz.typeName}, Any>: ${e.message}", e)
       throw RuntimeException("Failed to deserialize $json", e)
     }
   }
